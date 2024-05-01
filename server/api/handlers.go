@@ -23,30 +23,33 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%v\n", snippet)
+	// for _, snippet := range snippets {
+	// 	fmt.Fprintf(w, "%v\n", snippet)
+	// }
+
+	template_files := []string{
+		"client/ui/html/base.tmpl",
+		"client/ui/html/partials/nav.tmpl",
+		"client/ui/html/home.tmpl",
 	}
 
-	// template_files := []string{
-	// 	"client/ui/html/base.tmpl",
-	// 	"client/ui/html/partials/nav.tmpl",
-	// 	"client/ui/html/home.tmpl",
-	// }
+	data := &templateData{
+		Snippets: snippets,
+	}
 
-	// ts, err := template.ParseFiles(template_files...)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
+	ts, err := template.ParseFiles(template_files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
-	// err = ts.ExecuteTemplate(w, "base", nil)
-	// if err != nil {
-	// 	// app.errorLog.Printf(err.Error())
-	// 	app.serverError(w, err)
-	// 	return
-	// }
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
-	// w.Write([]byte("Welcome to Homepage"))
+	w.Write([]byte("Welcome to Homepage"))
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
