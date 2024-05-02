@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"text/template"
 
 	"snippetbox.sting.net/internal/models"
 )
@@ -23,33 +22,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// for _, snippet := range snippets {
-	// 	fmt.Fprintf(w, "%v\n", snippet)
-	// }
+	// Calling the newTemplateData function to retrieve templateData struct containing current year
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
 
-	template_files := []string{
-		"client/ui/html/base.tmpl",
-		"client/ui/html/partials/nav.tmpl",
-		"client/ui/html/home.tmpl",
-	}
+	// Using the render helper function to execute cached templates
+	app.render(w, http.StatusOK, "home.tmpl", data)
 
-	data := &templateData{
-		Snippets: snippets,
-	}
-
-	ts, err := template.ParseFiles(template_files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	w.Write([]byte("Welcome to Homepage"))
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
@@ -91,27 +70,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"client/ui/html/base.tmpl",
-		"client/ui/html/partials/nav.tmpl",
-		"client/ui/html/view.tmpl",
-	}
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
 
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	data := &templateData{
-		Snippet: snippet,
-	}
-
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	fmt.Fprintf(w, "%+v", snippet)
+	// Using the render helper function to execute cached templates
+	app.render(w, http.StatusOK, "view.tmpl", data)
 }
